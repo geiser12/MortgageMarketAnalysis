@@ -1,0 +1,109 @@
+---
+title: "MortgageSpread"
+output: html_document
+date: '2022-06-24'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+# Clear the Workspace
+rm(list=ls())
+
+library(tidyverse)
+library(readxl)
+library(devtools)
+
+rate_mbs_selloff <- read_excel("rate mbs selloff.xlsx")
+
+#filter out NA columns by position
+data1 <- rate_mbs_selloff %>% select(
+  1,2,5,8,11,14,17,20
+)
+
+#only want 2022 data
+data1 <- data1 %>% slice(1:116)#116
+
+#check to make sure it works
+View(data1)
+```
+
+
+Subtract 5 yr gov't yield from 4% fannie
+```{r}
+#subtract 5 yr gov't yield from 4% fannie
+data1$result1<- data1$fannie_4cpn - data1$us_govt_5y
+
+plot1 <- ggplot()+
+  geom_line(data = data1,
+            aes(x = Date, y = result1),
+            color='blue')+
+        
+  theme_classic()+
+  labs(title = '4% Fannie - 5yr Govt Bond')+
+  xlab('Date')+
+  ylab('Value')
+
+plot1
+```
+
+Subtract 5 year gov't yield from 5% Fannie coupon.
+```{r}
+#subtract 5 yr gov't yield from 4% fannie
+data1$result2<- data1$fannie_5cpn - data1$us_govt_5y
+
+plot2 <- ggplot()+
+  geom_line(data = data1,
+            aes(x = Date, y = result2),
+            color='blue')+
+        
+  theme_classic()+
+  labs(title = '5% Fannie - 5yr Govt Bond')+
+  xlab('Date')+
+  ylab('Value')
+
+plot2
+```
+
+Subtract 5 yr gov't yield from mid yield to convention bond.
+```{r}
+#subtract 5 yr gov't yield from mid yield to convention bond.
+data1$result3<- data1$Mid_Yield_To_Convention - data1$us_govt_5y
+
+plot3 <- ggplot()+
+  geom_line(data = data1,
+            aes(x = Date, y = result3),
+            color='blue')+
+        
+  theme_classic()+
+  labs(title = 'Mid Yield to Convention - 5yr Govt Bond')+
+  xlab('Date')+
+  ylab('Value')
+
+plot3
+```
+
+Subtract 5 yr gov't bond from Fannie current coupon spread option adj.
+
+```{r}
+#subtract 5 yr gov't yield from mid yield to convention bond.
+spread1<- data1$MOASFNCL / 100
+data1$result4<- spread1 - data1$us_govt_5y
+
+plot4 <- ggplot()+
+  geom_line(data = data1,
+            aes(x = Date, y = result4),
+            color='blue')+
+        
+  theme_classic()+
+  labs(title = 'Fannie current coupon spread option adj - 5yr Govt Bond')+
+  xlab('Date')+
+  ylab('Value')
+
+plot4
+```
+
+
